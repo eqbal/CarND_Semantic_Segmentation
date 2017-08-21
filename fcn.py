@@ -109,3 +109,61 @@ class FCN(object):
 
         # Define a training operation using the Adam optimizer
         self.train_op = tf.train.AdamOptimizer(self.learning_rate_holder).minimize(self.cross_entropy_loss)
+
+
+    '''
+    Define training op
+    '''
+    def train(self):
+
+        # Iterate over epochs
+        for epoch in range(1, self.epochs+1):
+            print("Epoch: " + str(epoch) + "/" + str(epochs))
+
+            # Iterate over the batches using the batch generation function
+            total_loss = []
+
+            get_batches_fn = helper.gen_batch_function(self.training_path, self.image_shape)
+            batch = get_batches_fn(self.batch_size)
+            size = math.ceil(self.training_images / self.batch_size)
+
+            for i, d in tqdm(enumerate(batch), desc="Batch", total=size):
+
+                # Create the feed dictionary
+                image, label = d
+
+                feed_dict = {
+                    input_image   : image,
+                    correct_label : label,
+                    keep_prob     : self.dropout,
+                    learning_rate : self.learning_rate
+                }
+
+                # Train and compute the loss
+                _, loss = self.session.run([self.train_op, self.cross_entropy_loss], feed_dict=feed_dict)
+
+                total_loss.append(loss)
+
+            # Compute mean epoch loss
+            mean_loss = sum(total_loss) / size
+            print("Loss:  " + str(loss) + "\n")
+
+
+    '''
+    Save the model
+    '''
+    def save_model(self):
+        saver = tf.train.Saver()
+        saver.save(self.session, self.save_location + 'variables/saved_model')
+        tf.train.write_graph(self.session.graph_def, self.save_location, "saved_model.pb", False)
+
+
+    '''
+    Run the tests
+    '''
+    def run_tests(self):
+        tests.test_load_vgg(self.load_vgg, tf)
+        tests.test_layers(self.layers)
+        tests.test_optimize(self.optimize_cross_entropy)
+        tests.test_train_nn(self.train)
+
