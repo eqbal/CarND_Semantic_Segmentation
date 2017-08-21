@@ -62,3 +62,29 @@ class FCN(object):
         self.layer_7     = graph.get_tensor_by_name('layer7_out:0')
 
 
+    '''
+    Truncated norm to make layer initialization readable
+    '''
+    def tf_norm(self):
+        return tf.truncated_normal_initializer(stddev=self.init_sd)
+
+    '''
+    Define the layers
+    '''
+    def build_layers(self):
+
+        # 1x1 convolutions of the three layers
+        l7 = tf.layers.conv2d(self.layer_7, self.num_classes, 1, 1, kernel_initializer=self.tf_norm())
+        l4 = tf.layers.conv2d(self.layer_4, self.num_classes, 1, 1, kernel_initializer=self.tf_norm())
+        l3 = tf.layers.conv2d(self.layer_3, self.num_classes, 1, 1, kernel_initializer=self.tf_norm())
+
+        # Upsample layer 7 and add to layer 4
+        layers = tf.layers.conv2d_transpose(l7, self.num_classes, 4, 2, 'SAME', kernel_initializer=self.tf_norm())
+        layers = tf.add(layers, l4)
+
+        # Upsample the sum and add to layer 3
+        layers = tf.layers.conv2d_transpose(layers, self.num_classes, 4, 2, 'SAME', kernel_initializer=self.tf_norm())
+        layers = tf.add(layers, l3)
+
+        # Upsample the total and return
+        self.layers = tf.layers.conv2d_transpose(layers, num_classes, 16, 8, 'SAME', kernel_initializer=self.tf_norm())
