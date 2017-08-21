@@ -42,6 +42,10 @@ class FCN(object):
         self.vgg_path = os.path.join(self.data_dir, 'vgg')
         self.training_path = os.path.join(self.data_dir, self.training_subdir)
 
+        # Placeholders
+        self.learning_rate_holder = tf.placeholder(dtype = tf.float32)
+        self.correct_label_holder = tf.placeholder(dtype = tf.float32, shape = (None, None, None, self.num_classes))
+
         # self.dataset = Dataset()
 
     '''
@@ -88,3 +92,20 @@ class FCN(object):
 
         # Upsample the total and return
         self.layers = tf.layers.conv2d_transpose(layers, num_classes, 16, 8, 'SAME', kernel_initializer=self.tf_norm())
+
+
+    '''
+    Optimizer based on cross entropy
+    '''
+    def optimize_cross_entropy(self):
+
+        # Reshape logits and label for computing cross entropy
+        self.logits   = tf.reshape(self.layer, (-1, self.num_classes), name='logits')
+        correct_label = tf.reshape(self.correct_label_holder, (-1, self.num_classes))
+
+        # Compute cross entropy and loss
+        cross_entropy_logits = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits, labels=correct_label)
+        self.cross_entropy_loss = tf.reduce_mean(cross_entropy_logits)
+
+        # Define a training operation using the Adam optimizer
+        self.train_op = tf.train.AdamOptimizer(self.learning_rate_holder).minimize(self.cross_entropy_loss)
