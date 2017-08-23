@@ -197,9 +197,9 @@ class FCN(object):
                     self.data_dir,
                     sess,
                     self.image_shape,
-                    logits,
-                    keep_prob,
-                    input_image)
+                    self.logits,
+                    self.keep_prob,
+                    self.input_image)
 
             # Save the model
             self.save_model(sess)
