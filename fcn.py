@@ -3,8 +3,8 @@
 Usage as follows:
 
     # Build a new model and train it
-    fcn = FCN(session)
-    fcn.load_vgg()
+    fcn = FCN()
+    fcn.run()
 
 """
 
@@ -40,6 +40,49 @@ class FCN(object):
         self.vgg_path = os.path.join(self.data_dir, 'vgg')
         self.training_path = os.path.join(self.data_dir, self.training_subdir)
 
+
+    '''
+    Main training routine
+    '''
+    def run(self):
+
+        helper.check_compatibility()
+        tests.test_for_kitti_dataset(self.data_dir)
+        helper.maybe_download_pretrained_vgg(self.data_dir)
+
+        # Define the batching function
+        get_batches_fn = helper.gen_batch_function(self.training_path, self.image_shape)
+
+        # TensorFlow session
+        with tf.Session() as sess:
+
+            # Placeholders
+            learning_rate = tf.placeholder(dtype = tf.float32)
+            correct_label = tf.placeholder(dtype = tf.float32, shape = (None, None, None, self.num_classes))
+
+            # Define network and training operations
+            self.load_vgg(sess, vgg_path)
+            self.layers(l3, l4, l7, self.num_classes)
+            self.optimize_cross_entropy()
+
+            # Initialize variables
+            sess.run(tf.global_variables_initializer())
+
+            # Train the model
+            self.train_nn(sess)
+
+            # Save images using the helper
+            helper.save_inference_samples(
+                    self.runs_dir,
+                    self.data_dir,
+                    sess,
+                    self.image_shape,
+                    self.logits,
+                    self.keep_prob,
+                    self.input_image)
+
+            # Save the model
+            self.save_model(sess)
 
     '''
     Load the VGG16 model
@@ -160,47 +203,4 @@ class FCN(object):
         tests.test_optimize(self.optimize_cross_entropy)
         tests.test_train_nn(self.train)
 
-
-    '''
-    Main training routine
-    '''
-    def run(self):
-
-        helper.check_compatibility()
-        tests.test_for_kitti_dataset(self.data_dir)
-        helper.maybe_download_pretrained_vgg(self.data_dir)
-
-        # Define the batching function
-        get_batches_fn = helper.gen_batch_function(self.training_path, self.image_shape)
-
-        # TensorFlow session
-        with tf.Session() as sess:
-
-            # Placeholders
-            learning_rate = tf.placeholder(dtype = tf.float32)
-            correct_label = tf.placeholder(dtype = tf.float32, shape = (None, None, None, self.num_classes))
-
-            # Define network and training operations
-            self.load_vgg(sess, vgg_path)
-            self.layers(l3, l4, l7, self.num_classes)
-            self.optimize_cross_entropy()
-
-            # Initialize variables
-            sess.run(tf.global_variables_initializer())
-
-            # Train the model
-            self.train_nn(sess)
-
-            # Save images using the helper
-            helper.save_inference_samples(
-                    self.runs_dir,
-                    self.data_dir,
-                    sess,
-                    self.image_shape,
-                    self.logits,
-                    self.keep_prob,
-                    self.input_image)
-
-            # Save the model
-            self.save_model(sess)
 
