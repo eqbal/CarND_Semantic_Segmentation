@@ -23,9 +23,7 @@ class FCN(object):
     '''
     Constructor for setting params
     '''
-    def __init__(self, session, options={}):
-        self.session = session
-
+    def __init__(self, options={}):
         self.learning_rate = options.get('learning_rate', 0.00001)
         self.dropout = options.get('dropout', 0.5)
         self.epochs = options.get('epochs', 100)
@@ -42,19 +40,14 @@ class FCN(object):
         self.vgg_path = os.path.join(self.data_dir, 'vgg')
         self.training_path = os.path.join(self.data_dir, self.training_subdir)
 
-        # Placeholders
-        self.learning_rate_holder = tf.placeholder(dtype = tf.float32)
-        self.correct_label_holder = tf.placeholder(dtype = tf.float32, shape = (None, None, None, self.num_classes))
-
-        # self.dataset = Dataset()
 
     '''
     Load the VGG16 model
     '''
-    def load_vgg(self):
+    def load_vgg(self, session):
 
         # Load the saved model
-        tf.saved_model.loader.load(self.session, ['vgg16'], self.vgg_path)
+        tf.saved_model.loader.load(session, ['vgg16'], self.vgg_path)
 
         # Get the relevant layers for constructing the skip-layers out of the graph
         graph = tf.get_default_graph()
@@ -114,7 +107,7 @@ class FCN(object):
     '''
     Define training op
     '''
-    def train(self):
+    def train(self, session):
 
         # Iterate over epochs
         for epoch in range(1, self.epochs+1):
@@ -140,7 +133,7 @@ class FCN(object):
                 }
 
                 # Train and compute the loss
-                _, loss = self.session.run([self.train_op, self.cross_entropy_loss], feed_dict=feed_dict)
+                _, loss = session.run([self.train_op, self.cross_entropy_loss], feed_dict=feed_dict)
 
                 total_loss.append(loss)
 
@@ -166,4 +159,48 @@ class FCN(object):
         tests.test_layers(self.layers)
         tests.test_optimize(self.optimize_cross_entropy)
         tests.test_train_nn(self.train)
+
+
+    '''
+    Main training routine
+    '''
+    def run(self):
+
+        helper.check_compatibility()
+        tests.test_for_kitti_dataset(self.data_dir)
+        helper.maybe_download_pretrained_vgg(self.data_dir)
+
+        # Define the batching function
+        get_batches_fn = helper.gen_batch_function(self.training_path, self.image_shape)
+
+        # TensorFlow session
+        with tf.Session() as sess:
+
+            # Placeholders
+            learning_rate = tf.placeholder(dtype = tf.float32)
+            correct_label = tf.placeholder(dtype = tf.float32, shape = (None, None, None, self.num_classes))
+
+            # Define network and training operations
+            self.load_vgg(sess, vgg_path)
+            self.layers(l3, l4, l7, self.num_classes)
+            self.optimize_cross_entropy()
+
+            # Initialize variables
+            sess.run(tf.global_variables_initializer())
+
+            # Train the model
+            self.train_nn(sess)
+
+            # Save images using the helper
+            helper.save_inference_samples(
+                    self.runs_dir,
+                    self.data_dir,
+                    sess,
+                    self.image_shape,
+                    logits,
+                    keep_prob,
+                    input_image)
+
+            # Save the model
+            self.save_model(sess)
 
