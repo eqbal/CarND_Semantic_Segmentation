@@ -36,6 +36,34 @@ The project can be run with ease by invoking `python main.py` or by simply use t
 - [x] Ensure you pass all points on [the rubric](https://review.udacity.com/#!/rubrics/989/view).
 - [x] Handle a video sample.
 
+### Running the tests
+
+When run, the project invokes some tests around building block functions that help ensure tensors of the right size and description are being used.
+
+I cleaned up the test code and added more debugging. The project has been restructured in a class to facilitate better passing of hyperparameters for training. You can use the default options but not passing anything to `FCN` init (ex: `FCN()`) or custom params by passing a hash with the needed params ex: 
+
+	```
+    params = {
+        'learning_rate':   0.00001,
+        'dropout':         0.5,
+        'epochs':          100,
+        'batch_size':      4,
+        'init_sd':         0.01,
+        'training_images': 289,
+        'num_classes':     2,
+        'image_shape':     (160, 576),
+        'data_dir':        'data',
+        'runs_dir':        'runs',
+        'training_subdir': 'data_road/training',
+        'save_location':   'data/fcn/'
+    }
+    fcn = FCN(params)
+    fcn.run_tests()
+    fcn.run()
+	```
+
+Once the tests are complete, the code checks for the existence of a base trained VGG16 model. If it is not found locally it downloads it. Once it is available, it is used as the basis for being reconnected with skip layers and recapping the model with an alternative top end for semantic segmentation.
+
 
 ### Setup
 ##### Frameworks and Packages
