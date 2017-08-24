@@ -64,6 +64,10 @@ I cleaned up the test code and added more debugging. The project has been restru
 
 Once the tests are complete, the code checks for the existence of a base trained VGG16 model. If it is not found locally it downloads it. Once it is available, it is used as the basis for being reconnected with skip layers and recapping the model with an alternative top end for semantic segmentation.
 
+Below is a graph to show the training loss of the model implementation for the first 20 epochs:
+
+![](./assets/training_loss.png)
+
 ### Skip Layers
 
 `VGG16` is a good start for an image semantic segmentation mechanism. Simply replacing the classifier with an alternative classifier based on flattened image logits is a good start. However, this tends to not have as good performance in terms of resolution as we would desire. The reason for this is the structure of the model with the reduction of resolution. One way of improve the performance is to merge the outputs of the layers, scaled to the right resolution. This works by producing cumulative layer activations and the ability, due to the convolutional kernels, to spread this activation locally to neighboring pixels. This change in layer connectivity is called skip layers and the result is more accurate segmentation.

@@ -22,10 +22,10 @@ class FCN(object):
     Constructor for setting params
     '''
     def __init__(self, options={}):
-        self.learning_rate = options.get('learning_rate', 0.00001)
+        self.learning_rate = options.get('learning_rate', 0.0001)
         self.dropout = options.get('dropout', 0.5)
-        self.epochs = options.get('epochs', 100)
-        self.batch_size = options.get('batch_size', 4)
+        self.epochs = options.get('epochs', 20)
+        self.batch_size = options.get('batch_size', 10)
         self.init_sd = options.get('init_sd', 0.01)
         self.training_images = options.get('training_images', 289)
         self.num_classes = options.get('num_classes', 2)
