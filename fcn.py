@@ -67,7 +67,7 @@ class FCN(object):
             sess.run(tf.global_variables_initializer())
 
             # Train the model
-            self.train_nn(sess)
+            self.train(sess)
 
             # Save images using the helper
             helper.save_inference_samples(
@@ -152,7 +152,7 @@ class FCN(object):
 
         # Iterate over epochs
         for epoch in range(1, self.epochs+1):
-            print("Epoch: " + str(epoch) + "/" + str(epochs))
+            print("Epoch: " + str(epoch) + "/" + str(self.epochs))
 
             # Iterate over the batches using the batch generation function
             total_loss = []
