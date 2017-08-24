@@ -16,8 +16,6 @@ import helper
 import tests
 from tqdm import tqdm
 
-# from dataset import *
-
 class FCN(object):
 
     '''
@@ -57,12 +55,12 @@ class FCN(object):
         with tf.Session() as sess:
 
             # Placeholders
-            learning_rate = tf.placeholder(dtype = tf.float32)
-            correct_label = tf.placeholder(dtype = tf.float32, shape = (None, None, None, self.num_classes))
+            self.learning_rate_holder = tf.placeholder(dtype = tf.float32)
+            self.correct_label_holder = tf.placeholder(dtype = tf.float32, shape = (None, None, None, self.num_classes))
 
             # Define network and training operations
-            self.load_vgg(sess, vgg_path)
-            self.layers(l3, l4, l7, self.num_classes)
+            self.load_vgg(sess)
+            self.layers()
             self.optimize_cross_entropy()
 
             # Initialize variables
@@ -111,7 +109,7 @@ class FCN(object):
     '''
     Define the layers
     '''
-    def build_layers(self):
+    def layers(self):
 
         # 1x1 convolutions of the three layers
         l7 = tf.layers.conv2d(self.layer_7, self.num_classes, 1, 1, kernel_initializer=self.tf_norm())
@@ -127,7 +125,7 @@ class FCN(object):
         layers = tf.add(layers, l3)
 
         # Upsample the total and return
-        self.layers = tf.layers.conv2d_transpose(layers, num_classes, 16, 8, 'SAME', kernel_initializer=self.tf_norm())
+        self.layers = tf.layers.conv2d_transpose(layers, self.num_classes, 16, 8, 'SAME', kernel_initializer=self.tf_norm())
 
 
     '''
@@ -136,11 +134,11 @@ class FCN(object):
     def optimize_cross_entropy(self):
 
         # Reshape logits and label for computing cross entropy
-        self.logits   = tf.reshape(self.layer, (-1, self.num_classes), name='logits')
+        self.logits   = tf.reshape(self.layers, (-1, self.num_classes), name='logits')
         correct_label = tf.reshape(self.correct_label_holder, (-1, self.num_classes))
 
         # Compute cross entropy and loss
-        cross_entropy_logits = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits, labels=correct_label)
+        cross_entropy_logits = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits, labels=self.correct_label_holder)
         self.cross_entropy_loss = tf.reduce_mean(cross_entropy_logits)
 
         # Define a training operation using the Adam optimizer
@@ -172,7 +170,7 @@ class FCN(object):
                     input_image   : image,
                     correct_label : label,
                     keep_prob     : self.dropout,
-                    learning_rate : self.learning_rate
+                    learning_rate : self.learning_rate_holder
                 }
 
                 # Train and compute the loss
@@ -200,7 +198,7 @@ class FCN(object):
     def run_tests(self):
         tests.test_load_vgg(self.load_vgg, tf)
         tests.test_layers(self.layers)
-        tests.test_optimize(self.optimize_cross_entropy)
+        tests.test_optimize(self.optimize_cross_entropy())
         tests.test_train_nn(self.train)
 
 
