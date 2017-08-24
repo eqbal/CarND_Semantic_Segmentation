@@ -64,6 +64,34 @@ I cleaned up the test code and added more debugging. The project has been restru
 
 Once the tests are complete, the code checks for the existence of a base trained VGG16 model. If it is not found locally it downloads it. Once it is available, it is used as the basis for being reconnected with skip layers and recapping the model with an alternative top end for semantic segmentation.
 
+### Skip Layers
+
+`VGG16` is a good start for an image semantic segmentation mechanism. Simply replacing the classifier with an alternative classifier based on flattened image logits is a good start. However, this tends to not have as good performance in terms of resolution as we would desire. The reason for this is the structure of the model with the reduction of resolution. One way of improve the performance is to merge the outputs of the layers, scaled to the right resolution. This works by producing cumulative layer activations and the ability, due to the convolutional kernels, to spread this activation locally to neighboring pixels. This change in layer connectivity is called skip layers and the result is more accurate segmentation.
+
+In this exercise we are focusing on layers `3`, `4` and `7`.
+
+- Each of these layers have a 1x1 convolution layer added.
+- layers 7 and 4 are merged, with layer 7 being upsampled using the `conv2d_transpose()` function.
+- The result of the cumulative layer was added to layer `3`. 
+- The cumulative layer being upsampled first.
+- The final result is upsampled again. 
+
+What this basically accomplishes is creating a `skip-layer` `encoder-decoder` network. The critical part, the encoder, is the pre-trained VGG16 model, and it is our task to train the smaller decoder aspect to accomplish the semantic segmentation that we are trying to achieve.
+
+### Optimization
+
+The network is trained using cross entropy loss as the metric to minimize. The way this is accomplished is essentially to flatten both the logits from the last decoder layer into a single dimensional label vector. The cross entropy loss is computed against the correct label image, itself also flattened. I used an `Adam` optimizer to minimize this.
+
+### Training the model
+
+We start by a trained model `VGG-16` as described earlier. I added `tqdm` so that there is a pettier output reporting while going through batches and epochs. This can be seen in the `train_nn()` method. 
+
+You will notice that some of the hyper-parameters are conveyed as properties. As with other methods, some of the passed in arguments are actually tensors. Using the properties made for a nicer way of grouping hyper-parameters. The basic training process is simply going through the defined epochs, batching and training. The loss reported is an average over the returned losses for all batches in an epoch.
+
+Once the training is complete, the test images are processed using the provided helper function. The model is saved later in the process. This is accomplished by using a `TensorFlow Saver()`.
+
+The metadata and the graph definition are written out. Reason for this is because we can use an optimizer on the graph for use in faster inference applications. 
+
 
 ### Setup
 ##### Frameworks and Packages
