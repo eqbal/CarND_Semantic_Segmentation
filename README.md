@@ -92,6 +92,12 @@ Once the training is complete, the test images are processed using the provided 
 
 The metadata and the graph definition are written out. Reason for this is because we can use an optimizer on the graph for use in faster inference applications. 
 
+### Hyperparameter
+- **Learning rate**: used the standard (`0.0001`)
+- **Dropout**: range between `0.5` through `0.8` worked the best.
+- **Epochs**: The number of epochs was selected based on watching the convergence of the loss. After about 15 epochs the loss didn't go down consistently. I used `20` epochs.
+- **Batch size**: I chose a batch size of `10` because this seemed to facilitate better generalization and more rapid reduction of loss values.
+- **Standard deviation of convolution layer initializer**: `0.01` worked well. Values larger tended to increase the initial loss and training time
 
 ### Setup
 ##### Frameworks and Packages
