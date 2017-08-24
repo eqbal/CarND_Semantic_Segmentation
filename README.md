@@ -4,7 +4,9 @@ Self-Driving Car Engineer Nanodegree Program
 By: [Eqbal Eki](http://www.eqbalq.com)
 
 ### Introduction
-In this project, you'll label the pixels of a road in images using a Fully Convolutional Network (FCN).
+
+The objective of this project is to build a Fully Connected Convolutional Neural Net `FCN` to identify the road in a collection of pictures. The encoding of the FCN will be provided by a pre-trained `VGG16` model and the decoder will be built using 1x1 convolutions, upscaling and layer skipping.
+
 
 ### File structure
 
@@ -24,6 +26,16 @@ In this project, you'll label the pixels of a road in images using a Fully Convo
 - `playground` is a python notebook so I can test the components and document training the model. 
 
 - `process_video.py` handles videos, segment the images and then process each using the trained model we generated. 
+
+### Running the project
+The project can be run with ease by invoking `python main.py` or by simply use the notebook and run `fcn.run` The way it is set up in this repo, using a GTX 1060 it takes about 10-15 minutes to train.
+
+
+### Checklist
+- [x] Ensure you've passed all the unit tests
+- [x] Ensure you pass all points on [the rubric](https://review.udacity.com/#!/rubrics/989/view).
+- [x] Handle a video sample.
+
 
 ### Setup
 ##### Frameworks and Packages
