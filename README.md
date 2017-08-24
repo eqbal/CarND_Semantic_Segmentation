@@ -97,7 +97,29 @@ The metadata and the graph definition are written out. Reason for this is becaus
 - **Dropout**: range between `0.5` through `0.8` worked the best.
 - **Epochs**: The number of epochs was selected based on watching the convergence of the loss. After about 15 epochs the loss didn't go down consistently. I used `20` epochs.
 - **Batch size**: I chose a batch size of `10` because this seemed to facilitate better generalization and more rapid reduction of loss values.
-- **Standard deviation of convolution layer initializer**: `0.01` worked well. Values larger tended to increase the initial loss and training time
+- **Standard deviation of convolution layer initializer**: `0.01` worked well. Values larger tended to increase the initial loss and training time.
+
+### Augmentation and helpers
+I added some functionalities and helpers to save the model and then use it again for processing video.
+
+One thing that made this simpler was to update the `optimize_cross_entropy()` method to add the name logits for the logits. This is because we use them later and want be able to get the op.
+
+I downloaded a driver's perspective video and ran the inference. It happens to work better for validation tests against similar images, but in the video I used, which had smears on the windshield and the road was a somewhat different color, the results were as bad as the validation set originally seemed mesmerizingly good to me.
+
+I had to add augmentation. I added rotations, translations and changes to the brightness. I also significantly reduced the learning rate and increased the number of epochs. This still didn't work well with the video processing at least. The different textures and colors of the road makes some issues with training the model. 
+
+While I was quite surprised with how well the model performed on the validation set, it is amazing how much harder the problem is when a more robust solution is needed. It seems that it requires a lot of thoughtful augmentation, and really would require significantly more training data, particularly training data that spans a wide range of road types.
+
+### Results
+![IMG1]()
+![IMG2]()
+
+
+- Small regions, such as between cars or around bicycles.
+- wide expanses of road with poorly defined boundaries.
+- Road forks with dominant lane lines.
+
+The model worked very well in general specially at distinguishing between roads and intersecting railroad tracks. This is probably related to why it does not segment the road at intersections with dominant lane lines as well, as the high contrast parallel lines have few examples in the training set.
 
 ### Setup
 ##### Frameworks and Packages
