@@ -167,10 +167,10 @@ class FCN(object):
                 image, label = d
 
                 feed_dict = {
-                    input_image   : image,
-                    correct_label : label,
-                    keep_prob     : self.dropout,
-                    learning_rate : self.learning_rate_holder
+                    self.input_image          : image,
+                    self.correct_label_holder : label,
+                    self.keep_prob            : self.dropout,
+                    self.learning_rate_holder : self.learning_rate
                 }
 
                 # Train and compute the loss
@@ -200,5 +200,3 @@ class FCN(object):
         tests.test_layers(self.layers)
         tests.test_optimize(self.optimize_cross_entropy())
         tests.test_train_nn(self.train)
-
-
