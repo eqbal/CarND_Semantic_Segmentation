@@ -2,7 +2,7 @@ import helper
 import warnings
 from distutils.version import LooseVersion
 from fcn import FCN
-import project_tests as tests
+import tests as tests
 
 
 
