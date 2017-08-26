@@ -186,10 +186,10 @@ class FCN(object):
     '''
     Save the model
     '''
-    def save_model(self):
+    def save_model(self, session):
         saver = tf.train.Saver()
-        saver.save(self.session, self.save_location + 'variables/saved_model')
-        tf.train.write_graph(self.session.graph_def, self.save_location, "saved_model.pb", False)
+        saver.save(session, self.save_location + 'variables/saved_model')
+        tf.train.write_graph(session.graph_def, self.save_location, "saved_model.pb", False)
 
 
     '''

@@ -115,8 +115,12 @@ I had to add augmentation. I added rotations, translations and changes to the br
 While I was quite surprised with how well the model performed on the validation set, it is amazing how much harder the problem is when a more robust solution is needed. It seems that it requires a lot of thoughtful augmentation, and really would require significantly more training data, particularly training data that spans a wide range of road types.
 
 ### Results
-![IMG1]()
-![IMG2]()
+
+
+![IMG1](./runs/1503754085.0104299/um_000013.png)
+![IMG1](./runs/1503754085.0104299/umm_000089.png)
+![IMG1](./runs/1503754085.0104299/uu_000020.png)
+![IMG1](./runs/1503754085.0104299/umm_000042.png)
 
 
 - Small regions, such as between cars or around bicycles.
